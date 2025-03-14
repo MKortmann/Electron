@@ -1,0 +1,21 @@
+{
+  "name": "image-resizer",
+  "productName": "Image Resizer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "watch": "npx electronmon .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Marcelo Kortmann",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^35.0.1"
+  },
+  "dependencies": {
+    "resize-img": "^2.0.0",
+    "toastify-js": "^1.12.0"
+  }
+}
