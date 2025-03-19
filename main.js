@@ -18,8 +18,6 @@ const {
 } = require('electron/main')
 
 const isDev = process.env.NODE_ENV !== 'development'
-console.log('test')
-console.log('ipcMain available:', !!ipcMain)
 
 let mainWindow
 
@@ -32,7 +30,6 @@ const createMainWindow = () => {
     webPreferences: {
       preload: path.join(__dirname, './preload.js'),
       contextIsolation: true,
-      enableRemoteModule: true,
       nodeIntegration: true,
     },
   })
@@ -41,9 +38,7 @@ const createMainWindow = () => {
     mainWindow.webContents.openDevTools()
   }
 
-  console.log('before main window')
   mainWindow.loadFile(path.join(__dirname, './renderer/index.html'))
-  console.log('after main window')
 }
 
 app
@@ -73,7 +68,6 @@ const createAboutWindow = () => {
     webPreferences: {
       preload: path.join(__dirname, './preload.js'),
       contextIsolation: true,
-      enableRemoteModule: false,
       nodeIntegration: true,
     },
   })
@@ -91,10 +85,14 @@ const menu = [
         accelerator: 'CmdOrCtrl+W',
       },
       {
-        label: 'Help',
+        label: 'Test',
         submenu: [
           {
-            label: 'About',
+            label: 'Submenu 1',
+            click: createAboutWindow,
+          },
+          {
+            label: 'Submenu 2',
             click: createAboutWindow,
           },
         ],
@@ -121,9 +119,9 @@ ipcMain.on('select:image', async (event) => {
     })
 
     if (!result.canceled && result.filePaths.length > 0) {
-      const selectedFile = result.filePaths[0]
-      console.log('Selected image:', selectedFile)
-      event.sender.send('image:selected', selectedFile)
+      const selectedFilePath = result.filePaths[0]
+      console.log('Selected image:', selectedFilePath)
+      event.sender.send('image:selected', selectedFilePath)
     }
   } catch (err) {
     console.error('Error selecting image:', err)
@@ -140,9 +138,9 @@ ipcMain.on('change:dir', async (e) => {
     })
 
     if (!result.canceled && result.filePaths.length > 0) {
-      const selectedDir = result.filePaths[0]
-      console.log('Selected directory:', selectedDir)
-      mainWindow.webContents.send('dir:changed', selectedDir)
+      const selectedFilePath = result.filePaths[0]
+      console.log('Selected directory:', selectedFilePath)
+      mainWindow.webContents.send('dir:changed', selectedFilePath)
     }
   } catch (err) {
     console.error('Error selecting directory:', err)
@@ -152,6 +150,7 @@ ipcMain.on('change:dir', async (e) => {
 
 ipcMain.on('image:resize', (e, options) => {
   console.log('Received image:resize event with options:', options)
+  console.log('e - sender object:', e.sender)
   if (!options.fileName || !options.fileData) {
     console.error('No file provided')
     return
@@ -171,7 +170,6 @@ async function resizeImage({ imgPath, width, height, outputPath }) {
       height: +height,
     })
 
-    // outputPath = options.outputPath || outputPath;
     const fileName = path.basename(imgPath)
 
     if (!fs.existsSync(outputPath)) {
@@ -193,7 +191,5 @@ async function resizeImage({ imgPath, width, height, outputPath }) {
 }
 
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit()
-  }
+  app.quit()
 })

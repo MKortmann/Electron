@@ -11,12 +11,12 @@ let currentOutputPath = path.join(os.homedir(), 'image-resizer')
 inputFolder.innerHTML = path.join(os.homedir(), 'image-resizer')
 
 outputPath.innerHTML = currentOutputPath
-let selectedFile = null
+let selectedFilePath = null
 
 function sendImage(e) {
   e.preventDefault()
 
-  if (!selectedFile) {
+  if (!selectedFilePath) {
     alertError('Please upload an image file')
     return
   }
@@ -28,16 +28,16 @@ function sendImage(e) {
 
   const reader = new FileReader()
   reader.onload = () => {
-    console.log('Sending image to main process: ', selectedFile)
+    console.log('Sending image to main process: ', selectedFilePath)
     ipcRenderer.send('image:resize', {
-      fileName: selectedFile.split('\\').pop(),
+      fileName: selectedFilePath.split('\\').pop(),
       fileData: reader.result,
       outputPath: currentOutputPath,
       width: widthInput.value,
       height: heightInput.value,
     })
   }
-  fetch(`file://${selectedFile}`)
+  fetch(`file://${selectedFilePath}`)
     .then((response) => response.blob())
     .then((blob) => {
       reader.readAsArrayBuffer(blob)
@@ -67,7 +67,7 @@ btnSelectImg.addEventListener('click', () => {
 
 ipcRenderer.on('image:selected', (filePath) => {
   console.log('Selected file:', filePath)
-  selectedFile = filePath
+  selectedFilePath = filePath
 
   const fileName = filePath.split('\\').pop()
 
@@ -79,11 +79,10 @@ ipcRenderer.on('image:selected', (filePath) => {
     console.log(`Width: ${image.width}, Height: ${image.height}`)
     widthInput.value = image.width
     heightInput.value = image.height
+    form.classList.remove('hidden')
+    const lastSeparatorIndex = filePath.lastIndexOf('\\')
+    inputFolder.innerText = filePath.substring(0, lastSeparatorIndex)
   }
-
-  form.classList.remove('hidden')
-  const lastSeparatorIndex = filePath.lastIndexOf('\\')
-  inputFolder.innerText = filePath.substring(0, lastSeparatorIndex)
 })
 
 const alertError = (msg) => {
