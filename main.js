@@ -129,7 +129,7 @@ ipcMain.on('select:image', async (event) => {
   }
 })
 
-ipcMain.on('change:dir', async (e) => {
+ipcMain.on('change:dir', async (event) => {
   console.log('Received change:dir event')
   try {
     const result = await dialog.showOpenDialog(mainWindow, {
@@ -140,6 +140,7 @@ ipcMain.on('change:dir', async (e) => {
     if (!result.canceled && result.filePaths.length > 0) {
       const selectedFilePath = result.filePaths[0]
       console.log('Selected directory:', selectedFilePath)
+      // event.sender.send('dir:changed', selectedFilePath)
       mainWindow.webContents.send('dir:changed', selectedFilePath)
     }
   } catch (err) {
@@ -148,9 +149,9 @@ ipcMain.on('change:dir', async (e) => {
   }
 })
 
-ipcMain.on('image:resize', (e, options) => {
+ipcMain.on('image:resize', (event, options) => {
   console.log('Received image:resize event with options:', options)
-  console.log('e - sender object:', e.sender)
+  console.log('e - sender object:', event.sender)
   if (!options.fileName || !options.fileData) {
     console.error('No file provided')
     return

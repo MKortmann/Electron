@@ -3,12 +3,12 @@ const btnSelectImg = document.querySelector('#select-image-btn')
 const outputPath = document.querySelector('#output-path')
 const filename = document.querySelector('#filename')
 const inputFolder = document.querySelector('#input-folder')
-const heightInput = document.querySelector('#height')
-const widthInput = document.querySelector('#width')
+const height = document.querySelector('#height')
+const width = document.querySelector('#width')
 const btnChangeDir = document.querySelector('#btn-change-dir')
 
-let currentOutputPath = path.join(os.homedir(), 'image-resizer')
-inputFolder.innerHTML = path.join(os.homedir(), 'image-resizer')
+let currentOutputPath = window.path.join(window.os.homedir(), 'image-resizer')
+inputFolder.innerHTML = window.path.join(os.homedir(), 'image-resizer')
 
 outputPath.innerHTML = currentOutputPath
 let selectedFilePath = null
@@ -21,7 +21,7 @@ function sendImage(e) {
     return
   }
 
-  if (!heightInput.value || !widthInput.value) {
+  if (!height.value || !width.value) {
     alertError('Please enter the height and width')
     return
   }
@@ -33,8 +33,8 @@ function sendImage(e) {
       fileName: selectedFilePath.split('\\').pop(),
       fileData: reader.result,
       outputPath: currentOutputPath,
-      width: widthInput.value,
-      height: heightInput.value,
+      width: width.value,
+      height: height.value,
     })
   }
   fetch(`file://${selectedFilePath}`)
@@ -53,8 +53,8 @@ function isFileImage(file) {
 
   image.onload = () => {
     console.log(image.width, image.height)
-    widthInput.value = image.width
-    heightInput.value = image.height
+    width.value = image.width
+    height.value = image.height
   }
 
   const acceptedImageTypes = ['image/gif', 'image/jpeg', 'image/png']
@@ -77,8 +77,8 @@ ipcRenderer.on('image:selected', (filePath) => {
   image.src = `file://${filePath}`
   image.onload = () => {
     console.log(`Width: ${image.width}, Height: ${image.height}`)
-    widthInput.value = image.width
-    heightInput.value = image.height
+    width.value = image.width
+    height.value = image.height
     form.classList.remove('hidden')
     const lastSeparatorIndex = filePath.lastIndexOf('\\')
     inputFolder.innerText = filePath.substring(0, lastSeparatorIndex)
@@ -86,7 +86,7 @@ ipcRenderer.on('image:selected', (filePath) => {
 })
 
 const alertError = (msg) => {
-  Toastify.toast({
+  window.Toastify.toast({
     text: msg,
     duration: 5000,
     close: false,
@@ -98,7 +98,7 @@ const alertError = (msg) => {
 }
 
 const alertSucess = (msg) => {
-  Toastify.toast({
+  window.Toastify.toast({
     text: msg,
     duration: 7000,
     close: false,
@@ -111,7 +111,7 @@ const alertSucess = (msg) => {
 
 ipcRenderer.on('image:done', (event, data) => {
   alertSucess(
-    `Image resized successfully to: ${widthInput.value} x ${heightInput.value} at ${outputPath.innerText}`,
+    `Image resized successfully to: ${width.value} x ${height.value} at ${outputPath.innerText}`,
   )
   form.classList.add('hidden')
 })
